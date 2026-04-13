@@ -12,7 +12,6 @@ This is all about **FreeCAD** and friends: OCCT, Coin, SMESH, Netgen, Pivy — w
 
 ```bash
 pixi run debug  # and wait
-pixi run -e debug FreeCAD
 ```
 
 If that finishes, you’re allowed to feel smug. If it doesn’t: no drama — see [`INSTRUCTIONS.md`](INSTRUCTIONS.md) for the grown-up bits (order of operations, tasks, technical notes).
