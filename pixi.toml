@@ -17,7 +17,6 @@ requires-pixi = ">=0.48"
 # Abhängigkeiten nach https://github.com/looooo/freecad-feedstock/blob/v102/recipe/recipe.yaml
 # (Zusammenführung von requirements.build / host / run, ohne Kreuzkompilierung).
 # OCCT / Coin / Pivy / SMESH: Conda (CMake-Preset BUILD_WITH_CONDA); später ggf. eigene Schritte ergänzen.
-
 [dependencies]
 # --- OpenCASCADE / Mesh / Coin / Pivy (Conda) --
 # occt = "*"
@@ -85,12 +84,6 @@ xorg-libxi = "*"
 yaml-cpp = "*"
 zlib = "*"
 
-[feature.debug]
-activation = { env = { FC_MODE = "debug", CMAKE_BUILD_TYPE = "Debug" } }
-
-[feature.release]
-activation = { env = { FC_MODE = "release", CMAKE_BUILD_TYPE = "Release" } }
-
 [environments]
 debug = { features = ["debug"], solve-group = "build" }
 release = { features = ["release"], solve-group = "build" }
@@ -125,8 +118,8 @@ configure-debug-netgen = "cmake -S third_party/netgen -B build/debug/netgen -G N
 build-debug-netgen = { depends-on = ["configure-debug-netgen"], cmd = "bash scripts/cmake-build-parallel.sh build/debug/netgen" }
 install-debug-netgen = { depends-on = ["build-debug-netgen"], cmd = "cmake --install build/debug/netgen" }
 debug-netgen = { depends-on = ["install-debug-netgen"], cmd = "true" }
-# SMESH: third_party/smesh (rekursive Submodule), OpenCASCADE/VTK aus install/debug + Conda
-configure-debug-smesh = { depends-on = ["prepare-smesh"], cmd = "cmake -S third_party/smesh -B build/debug/smesh -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$PIXI_PROJECT_ROOT/install/debug -DCMAKE_PREFIX_PATH=$PIXI_PROJECT_ROOT/install/debug:$CONDA_PREFIX" }
+# SMESH: third_party/smesh; OpenCASCADE via install/debug + scripts/configure-smesh.sh (−DOpenCASCADE_DIR)
+configure-debug-smesh = { depends-on = ["prepare-smesh"], cmd = "bash scripts/configure-smesh.sh debug" }
 build-debug-smesh = { depends-on = ["configure-debug-smesh"], cmd = "bash scripts/cmake-build-parallel.sh build/debug/smesh" }
 install-debug-smesh = { depends-on = ["build-debug-smesh"], cmd = "cmake --install build/debug/smesh" }
 debug-smesh = { depends-on = ["install-debug-smesh"], cmd = "true" }
@@ -156,7 +149,7 @@ configure-release-netgen = "cmake -S third_party/netgen -B build/release/netgen 
 build-release-netgen = { depends-on = ["configure-release-netgen"], cmd = "bash scripts/cmake-build-parallel.sh build/release/netgen" }
 install-release-netgen = { depends-on = ["build-release-netgen"], cmd = "cmake --install build/release/netgen" }
 release-netgen = { depends-on = ["install-release-netgen"], cmd = "true" }
-configure-release-smesh = { depends-on = ["prepare-smesh"], cmd = "cmake -S third_party/smesh -B build/release/smesh -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PIXI_PROJECT_ROOT/install/release -DCMAKE_PREFIX_PATH=$PIXI_PROJECT_ROOT/install/release:$CONDA_PREFIX" }
+configure-release-smesh = { depends-on = ["prepare-smesh"], cmd = "bash scripts/configure-smesh.sh release" }
 build-release-smesh = { depends-on = ["configure-release-smesh"], cmd = "bash scripts/cmake-build-parallel.sh build/release/smesh" }
 install-release-smesh = { depends-on = ["build-release-smesh"], cmd = "cmake --install build/release/smesh" }
 release-smesh = { depends-on = ["install-release-smesh"], cmd = "true" }
