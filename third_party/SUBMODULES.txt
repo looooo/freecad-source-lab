@@ -1,0 +1,15 @@
+Shallow submodules (from repository root). Adjust branch/tag as needed; URLs follow typical upstreams.
+
+Bereits im Repo:
+  - third_party/freecad — https://github.com/FreeCAD/FreeCAD.git (branch main, --depth 1)
+
+Weitere Beispiele (noch nicht angelegt):
+
+  git submodule add --depth 1 https://github.com/Open-Cascade-SAS/OCCT.git third_party/occt
+  git submodule add --depth 1 https://github.com/coin3d/coin.git third_party/coin
+  git submodule add --depth 1 https://github.com/NGSolve/netgen.git third_party/netgen
+  git submodule add --depth 1 https://github.com/coin3d/pivy.git third_party/pivy
+
+scmesh: project-specific (SMESH / mesh stack). Clone the repository you use with FreeCAD into third_party/scmesh and document the URL here.
+
+Nach Änderungen: git submodule update --init --recursive --depth 1  (oder: pixi run submodules-init)
