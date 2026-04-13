@@ -30,7 +30,7 @@ cmake = "*"
 ninja = "*"
 swig = "*"
 compilers = "*"
-pybind11 = "*"
+pybind11 = "3.0.1"
 qt6-main = "*"
 noqt5 = "*"
 python = ">=3.14,<3.15"
@@ -113,8 +113,8 @@ configure-debug-coin = "cmake -S third_party/coin -B build/debug/coin -G Ninja -
 build-debug-coin = { depends-on = ["configure-debug-coin"], cmd = "bash scripts/cmake-build-parallel.sh build/debug/coin" }
 install-debug-coin = { depends-on = ["build-debug-coin"], cmd = "cmake --install build/debug/coin" }
 debug-coin = { depends-on = ["install-debug-coin"], cmd = "true" }
-# Netgen: Install in aktive Pixi-Umgebung (CONDA_PREFIX), nicht unter install/debug — NETGENDIR/PYTHONPATH dann z. B. .pixi/envs/debug/…
-configure-debug-netgen = "cmake -S third_party/netgen -B build/debug/netgen -G Ninja -DCMAKE_BUILD_TYPE=Debug -DUSE_SUPERBUILD=OFF -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_PREFIX_PATH=$PIXI_PROJECT_ROOT/install/debug:$CONDA_PREFIX -DPython3_EXECUTABLE=$CONDA_PREFIX/bin/python -DPython3_ROOT_DIR=$CONDA_PREFIX -DPython3_FIND_STRATEGY=LOCATION"
+# Netgen: Install in aktive Pixi-Umgebung; OCCT aus install/debug — scripts/configure-netgen.sh (−DOpenCascade_DIR)
+configure-debug-netgen = "bash scripts/configure-netgen.sh debug"
 build-debug-netgen = { depends-on = ["configure-debug-netgen"], cmd = "bash scripts/cmake-build-parallel.sh build/debug/netgen" }
 install-debug-netgen = { depends-on = ["build-debug-netgen"], cmd = "cmake --install build/debug/netgen" }
 debug-netgen = { depends-on = ["install-debug-netgen"], cmd = "true" }
@@ -145,7 +145,7 @@ configure-release-coin = "cmake -S third_party/coin -B build/release/coin -G Nin
 build-release-coin = { depends-on = ["configure-release-coin"], cmd = "bash scripts/cmake-build-parallel.sh build/release/coin" }
 install-release-coin = { depends-on = ["build-release-coin"], cmd = "cmake --install build/release/coin" }
 release-coin = { depends-on = ["install-release-coin"], cmd = "true" }
-configure-release-netgen = "cmake -S third_party/netgen -B build/release/netgen -G Ninja -DCMAKE_BUILD_TYPE=Release -DUSE_SUPERBUILD=OFF -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_PREFIX_PATH=$PIXI_PROJECT_ROOT/install/release:$CONDA_PREFIX -DPython3_EXECUTABLE=$CONDA_PREFIX/bin/python -DPython3_ROOT_DIR=$CONDA_PREFIX -DPython3_FIND_STRATEGY=LOCATION"
+configure-release-netgen = "bash scripts/configure-netgen.sh release"
 build-release-netgen = { depends-on = ["configure-release-netgen"], cmd = "bash scripts/cmake-build-parallel.sh build/release/netgen" }
 install-release-netgen = { depends-on = ["build-release-netgen"], cmd = "cmake --install build/release/netgen" }
 release-netgen = { depends-on = ["install-release-netgen"], cmd = "true" }
