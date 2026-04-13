@@ -136,12 +136,12 @@ configure-debug-pivy = "bash scripts/configure-pivy.sh debug"
 build-debug-pivy = { depends-on = ["configure-debug-pivy"], cmd = "cmake --build build/debug/pivy --parallel 1" }
 install-debug-pivy = { depends-on = ["build-debug-pivy"], cmd = "cmake --install build/debug/pivy" }
 debug-pivy = { depends-on = ["install-debug-pivy"], cmd = "true" }
-# Preset conda-linux-debug, Build: third_party/freecad/build/debug — vorher: pixi run submodules-init
+# Preset conda-linux-debug, Build: third_party/freecad/build/debug — submodules: Task „debug“ läuft submodules-init zuerst
 configure-debug-freecad = "bash -ec \"cd third_party/freecad && cmake --preset conda-linux-debug -DPython3_ROOT_DIR=\\\"$CONDA_PREFIX\\\" -DPython3_FIND_STRATEGY=LOCATION\""
 build-debug-freecad = { depends-on = ["configure-debug-freecad"], cmd = "bash scripts/cmake-build-parallel.sh third_party/freecad/build/debug" }
 install-debug-freecad = { depends-on = ["build-debug-freecad"], cmd = "cmake --install third_party/freecad/build/debug" }
 debug-freecad = { depends-on = ["install-debug-freecad"], cmd = "true" }
-debug = "bash scripts/install-stack.sh debug"
+debug = { depends-on = ["submodules-init"], cmd = "bash scripts/install-stack.sh debug" }
 
 [feature.release.tasks]
 configure-release-occt = "cmake -S third_party/occt -B build/release/occt -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PIXI_PROJECT_ROOT/install/release -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -D3RDPARTY_TCL_DIR=$CONDA_PREFIX -D3RDPARTY_TCL_INCLUDE_DIR=$CONDA_PREFIX/include -D3RDPARTY_TCL_LIBRARY=$CONDA_PREFIX/lib/libtcl8.6.so -D3RDPARTY_TCL_LIBRARY_DIR=$CONDA_PREFIX/lib -D3RDPARTY_TK_DIR=$CONDA_PREFIX -D3RDPARTY_TK_INCLUDE_DIR=$CONDA_PREFIX/include -D3RDPARTY_TK_LIBRARY=$CONDA_PREFIX/lib/libtk8.6.so -D3RDPARTY_TK_LIBRARY_DIR=$CONDA_PREFIX/lib"
@@ -168,4 +168,4 @@ configure-release-freecad = "bash -ec \"cd third_party/freecad && cmake --preset
 build-release-freecad = { depends-on = ["configure-release-freecad"], cmd = "bash scripts/cmake-build-parallel.sh third_party/freecad/build/release" }
 install-release-freecad = { depends-on = ["build-release-freecad"], cmd = "cmake --install third_party/freecad/build/release" }
 release-freecad = { depends-on = ["install-release-freecad"], cmd = "true" }
-release = "bash scripts/install-stack.sh release"
+release = { depends-on = ["submodules-init"], cmd = "bash scripts/install-stack.sh release" }

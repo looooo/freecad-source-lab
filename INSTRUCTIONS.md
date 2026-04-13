@@ -40,7 +40,7 @@ Tasks live in **`[feature.debug.tasks]`** and **`[feature.release.tasks]`** and 
 
 ## 5. Full stack (aggregated tasks)
 
-The script `scripts/install-stack.sh` builds and installs the main chain **in order**: **Coin → Pivy → OCCT → SMESH → FreeCAD**.
+The script `scripts/install-stack.sh` builds and installs the main chain **in order**: **Coin → Pivy → OCCT → SMESH → FreeCAD**. The **`debug`** and **`release`** tasks **depend on `submodules-init`**, so `git submodule update --init --recursive --depth 1` runs first (same as `pixi run submodules-init`).
 
 ```bash
 pixi run -e debug debug       # full debug stack
