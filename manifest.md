@@ -1,6 +1,9 @@
-dieses repository soll dazu dienen freecad und seine abhängigkeiten ohne viel vorwissen zu erstellen. alles was schlussendlich benötigt wird ist z. B. "pixi run -e debug debug-all" bzw. "pixi run -e release release-all" (Tasks in den Pixi-Umgebungen debug/release).
-Zunächst sollen freecad und die nähesten abhängigkeiten (pivy, coin, scmesh, netgen, occt) aus quellen gebaut werden. Später kann das um weitere komponenten (qt, boost, usw.) erweitert werden.
-Das ganze soll entweder im "release" oder "debug" modus erstellt werden. dafür sollen zwei environments (pixi) erstellt werden.
-Für jede source abhängigkeit soll es einen eigenen Befehl geben (z. B. pixi run -e release release-<project name>).
-Die befehle sollten immer in configure, build, install aufgeteilt werden (pixi run -e <debug|release> <configure|build|install>-<debug|release>-<project name>) und in (pixi run -e <debug|release> <debug|release>-<project name>) zusammengefasst werden.
-Die quellen (source) sollten als git submodule angelegt werden. Um die größe des repos nicht zu sehr aufzublasen, sollten auch nur die neuesten commits geholt werden.
+This repository exists to build **FreeCAD** and its dependencies **without requiring deep prior knowledge**. The workflow is driven by **Pixi** tasks in the **`debug`** and **`release`** environments; the usual full build is documented in **`INSTRUCTIONS.md`** (e.g. `pixi run -e debug debug` and `pixi run -e release release`).
+
+The first goal is to build **FreeCAD** and the core stack **from source** (e.g. OCCT, Coin3D, Pivy, SMESH, Netgen), with other libraries supplied by the Pixi/conda environment where appropriate. Later, the same structure can be extended to additional components (Qt, Boost, etc.) if needed.
+
+Everything should be buildable in either **debug** or **release** mode, implemented as two separate Pixi environments.
+
+For each source-based component there should be dedicated commands (e.g. `pixi run -e release release-<project>`). Commands are split into **configure**, **build**, and **install** steps (`pixi run -e <debug|release> <configure|build|install>-<debug|release>-<project>`), and combined into a single meta task per component (`pixi run -e <debug|release> <debug|release>-<project>`).
+
+Sources should be tracked as **Git submodules**. To avoid bloating disk usage, use **shallow** clones (e.g. `--depth 1`) when fetching submodules.

@@ -5,13 +5,13 @@
 # SMESH (looooo/SMESH, Tag vtk9.6_occt7.9.3): prepare-smesh → configure-debug-smesh | … | debug-smesh
 # Pivy (0.6.11 aus Submodule): configure-debug-pivy | build-debug-pivy | install-debug-pivy | debug-pivy
 # Parallele Build-Jobs: pixi run set-parallel 4  (ohne Zahl: nproc → .pixi-build-parallel)
-# Gesamt-Stapel (Reihenfolge Coin→Pivy→OCCT→SMESH→FreeCAD): pixi run -e debug debug-install-all  bzw. release-install-all
+# Full stack (order Coin→Pivy→OCCT→SMESH→FreeCAD): pixi run -e debug debug | pixi run -e release release
 # Submodule: pixi run submodules-init   (Default-Umgebung, kein -e nötig)
 [workspace]
 name = "freecad_dev"
 channels = ["conda-forge"]
 platforms = ["linux-64", "linux-aarch64"]
-description = "Build OCCT, Coin3D, Netgen, SMESH, Pivy, and FreeCAD from third_party (see ANWEISUNG.md)"
+description = "Build OCCT, Coin3D, Netgen, SMESH, Pivy, and FreeCAD from third_party (see INSTRUCTIONS.md)"
 requires-pixi = ">=0.48"
 
 # Abhängigkeiten nach https://github.com/looooo/freecad-feedstock/blob/v102/recipe/recipe.yaml
