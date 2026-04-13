@@ -136,8 +136,8 @@ configure-debug-pivy = "bash scripts/configure-pivy.sh debug"
 build-debug-pivy = { depends-on = ["configure-debug-pivy"], cmd = "cmake --build build/debug/pivy --parallel 1" }
 install-debug-pivy = { depends-on = ["build-debug-pivy"], cmd = "cmake --install build/debug/pivy" }
 debug-pivy = { depends-on = ["install-debug-pivy"], cmd = "true" }
-# Preset conda-linux-debug, Build: third_party/freecad/build/debug — submodules: Task „debug“ läuft submodules-init zuerst
-configure-debug-freecad = "bash -ec \"cd third_party/freecad && cmake --preset conda-linux-debug -DPython3_ROOT_DIR=\\\"$CONDA_PREFIX\\\" -DPython3_FIND_STRATEGY=LOCATION\""
+# Preset conda-linux-debug; externes SMESH (install/debug) + CMAKE_PREFIX_PATH — siehe scripts/configure-freecad.sh
+configure-debug-freecad = "bash scripts/configure-freecad.sh debug"
 build-debug-freecad = { depends-on = ["configure-debug-freecad"], cmd = "bash scripts/cmake-build-parallel.sh third_party/freecad/build/debug" }
 install-debug-freecad = { depends-on = ["build-debug-freecad"], cmd = "cmake --install third_party/freecad/build/debug" }
 debug-freecad = { depends-on = ["install-debug-freecad"], cmd = "true" }
@@ -164,7 +164,7 @@ configure-release-pivy = "bash scripts/configure-pivy.sh release"
 build-release-pivy = { depends-on = ["configure-release-pivy"], cmd = "cmake --build build/release/pivy --parallel 1" }
 install-release-pivy = { depends-on = ["build-release-pivy"], cmd = "cmake --install build/release/pivy" }
 release-pivy = { depends-on = ["install-release-pivy"], cmd = "true" }
-configure-release-freecad = "bash -ec \"cd third_party/freecad && cmake --preset conda-linux-release -DPython3_ROOT_DIR=\\\"$CONDA_PREFIX\\\" -DPython3_FIND_STRATEGY=LOCATION\""
+configure-release-freecad = "bash scripts/configure-freecad.sh release"
 build-release-freecad = { depends-on = ["configure-release-freecad"], cmd = "bash scripts/cmake-build-parallel.sh third_party/freecad/build/release" }
 install-release-freecad = { depends-on = ["build-release-freecad"], cmd = "cmake --install third_party/freecad/build/release" }
 release-freecad = { depends-on = ["install-release-freecad"], cmd = "true" }
