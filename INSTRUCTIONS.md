@@ -62,6 +62,7 @@ Other helpers:
 
 ## 6. Technical notes
 
+- **OCCT** is configured with the **Draw** module (Tcl/Tk test harness) enabled. The Pixi env includes **`tk`** from conda-forge. OCCT’s CMake clears `3RDPARTY_TCL_LIBRARY` / `3RDPARTY_TK_LIBRARY` unless the matching **`3RDPARTY_*_LIBRARY_DIR`** is also set — the `configure-*-occt` tasks set both so linking uses the conda libraries (see `third_party/occt/adm/cmake/tcl.cmake` / `tk.cmake`).
 - Use separate install prefixes per mode where applicable (e.g. `install/debug` vs `install/release` under the project root, and/or `$CONDA_PREFIX` for components installed into the Pixi env — see `pixi.toml`).
 - Pass **`CMAKE_BUILD_TYPE`**, **`CMAKE_INSTALL_PREFIX`**, and **`CMAKE_PREFIX_PATH`** as needed so already-built dependencies are found.
 - Prefer **upstream** READMEs, `BUILDING.md`, and CI scripts for project-specific CMake flags; keep this repo focused on orchestration.

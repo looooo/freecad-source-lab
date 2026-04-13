@@ -42,6 +42,8 @@ ccache = "*"
 mold = "*"
 git = "*"
 pkg-config = "*"
+# OCCT Draw (TKDraw): Tcl/Tk from conda-forge (tk meta-package)
+tk = "*"
 
 # --- host (recipe host) ---
 eigen = "*"
@@ -108,7 +110,8 @@ prepare-smesh = "python scripts/prepare-smesh.py"
 
 [feature.debug.tasks]
 # OCCT aus third_party/occt → install/debug; 3rdparty aus Conda (CMAKE_PREFIX_PATH)
-configure-debug-occt = "cmake -S third_party/occt -B build/debug/occt -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$PIXI_PROJECT_ROOT/install/debug -DCMAKE_PREFIX_PATH=$CONDA_PREFIX"
+# Tcl/Tk: OCCT setzt 3RDPARTY_TCL_LIBRARY leer, wenn *_LIBRARY_DIR fehlt — immer beides setzen (siehe adm/cmake/tcl.cmake)
+configure-debug-occt = "cmake -S third_party/occt -B build/debug/occt -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$PIXI_PROJECT_ROOT/install/debug -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -D3RDPARTY_TCL_DIR=$CONDA_PREFIX -D3RDPARTY_TCL_INCLUDE_DIR=$CONDA_PREFIX/include -D3RDPARTY_TCL_LIBRARY=$CONDA_PREFIX/lib/libtcl8.6.so -D3RDPARTY_TCL_LIBRARY_DIR=$CONDA_PREFIX/lib -D3RDPARTY_TK_DIR=$CONDA_PREFIX -D3RDPARTY_TK_INCLUDE_DIR=$CONDA_PREFIX/include -D3RDPARTY_TK_LIBRARY=$CONDA_PREFIX/lib/libtk8.6.so -D3RDPARTY_TK_LIBRARY_DIR=$CONDA_PREFIX/lib"
 build-debug-occt = { depends-on = ["configure-debug-occt"], cmd = "bash scripts/cmake-build-parallel.sh build/debug/occt" }
 install-debug-occt = { depends-on = ["build-debug-occt"], cmd = "cmake --install build/debug/occt" }
 debug-occt = { depends-on = ["install-debug-occt"], cmd = "true" }
@@ -141,7 +144,7 @@ debug-freecad = { depends-on = ["install-debug-freecad"], cmd = "true" }
 debug = "bash scripts/install-stack.sh debug"
 
 [feature.release.tasks]
-configure-release-occt = "cmake -S third_party/occt -B build/release/occt -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PIXI_PROJECT_ROOT/install/release -DCMAKE_PREFIX_PATH=$CONDA_PREFIX"
+configure-release-occt = "cmake -S third_party/occt -B build/release/occt -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PIXI_PROJECT_ROOT/install/release -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -D3RDPARTY_TCL_DIR=$CONDA_PREFIX -D3RDPARTY_TCL_INCLUDE_DIR=$CONDA_PREFIX/include -D3RDPARTY_TCL_LIBRARY=$CONDA_PREFIX/lib/libtcl8.6.so -D3RDPARTY_TCL_LIBRARY_DIR=$CONDA_PREFIX/lib -D3RDPARTY_TK_DIR=$CONDA_PREFIX -D3RDPARTY_TK_INCLUDE_DIR=$CONDA_PREFIX/include -D3RDPARTY_TK_LIBRARY=$CONDA_PREFIX/lib/libtk8.6.so -D3RDPARTY_TK_LIBRARY_DIR=$CONDA_PREFIX/lib"
 build-release-occt = { depends-on = ["configure-release-occt"], cmd = "bash scripts/cmake-build-parallel.sh build/release/occt" }
 install-release-occt = { depends-on = ["build-release-occt"], cmd = "cmake --install build/release/occt" }
 release-occt = { depends-on = ["install-release-occt"], cmd = "true" }
