@@ -2,3 +2,18 @@
 	path = third_party/freecad
 	url = https://github.com/FreeCAD/FreeCAD.git
 	branch = main
+[submodule "third_party/occt"]
+	path = third_party/occt
+	url = https://github.com/Open-Cascade-SAS/OCCT.git
+[submodule "third_party/pivy"]
+	path = third_party/pivy
+	url = https://github.com/coin3d/pivy.git
+[submodule "third_party/coin"]
+	path = third_party/coin
+	url = https://github.com/coin3d/coin.git
+[submodule "third_party/smesh"]
+	path = third_party/smesh
+	url = https://github.com/looooo/SMESH.git
+[submodule "third_party/netgen"]
+	path = third_party/netgen
+	url = https://github.com/looooo/netgen.git

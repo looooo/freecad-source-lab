@@ -1,0 +1,6 @@
+dieses repository soll dazu dienen freecad und seine abhängigkeiten ohne viel vorwissen zu erstellen. alles was schlussendlich benötigt wird ist z. B. "pixi run -e debug debug-all" bzw. "pixi run -e release release-all" (Tasks in den Pixi-Umgebungen debug/release).
+Zunächst sollen freecad und die nähesten abhängigkeiten (pivy, coin, scmesh, netgen, occt) aus quellen gebaut werden. Später kann das um weitere komponenten (qt, boost, usw.) erweitert werden.
+Das ganze soll entweder im "release" oder "debug" modus erstellt werden. dafür sollen zwei environments (pixi) erstellt werden.
+Für jede source abhängigkeit soll es einen eigenen Befehl geben (z. B. pixi run -e release release-<project name>).
+Die befehle sollten immer in configure, build, install aufgeteilt werden (pixi run -e <debug|release> <configure|build|install>-<debug|release>-<project name>) und in (pixi run -e <debug|release> <debug|release>-<project name>) zusammengefasst werden.
+Die quellen (source) sollten als git submodule angelegt werden. Um die größe des repos nicht zu sehr aufzublasen, sollten auch nur die neuesten commits geholt werden.

@@ -1,0 +1,168 @@
+# FreeCAD: pixi run -e debug configure-debug-freecad | build-debug-freecad | install-debug-freecad | debug-freecad
+# OCCT (7.9.3 aus Submodule): configure-debug-occt | build-debug-occt | install-debug-occt | debug-occt
+# Coin3D (v4.0.8 aus Submodule): configure-debug-coin | build-debug-coin | install-debug-coin | debug-coin
+# Netgen (looooo/netgen, Tag v6.2.2601): configure-debug-netgen | build-debug-netgen | install-debug-netgen | debug-netgen
+# SMESH (looooo/SMESH, Tag vtk9.6_occt7.9.3): prepare-smesh → configure-debug-smesh | … | debug-smesh
+# Pivy (0.6.11 aus Submodule): configure-debug-pivy | build-debug-pivy | install-debug-pivy | debug-pivy
+# Parallele Build-Jobs: pixi run set-parallel 4  (ohne Zahl: nproc → .pixi-build-parallel)
+# Gesamt-Stapel (Reihenfolge Coin→Pivy→OCCT→SMESH→FreeCAD): pixi run -e debug debug-install-all  bzw. release-install-all
+# Submodule: pixi run submodules-init   (Default-Umgebung, kein -e nötig)
+[workspace]
+name = "freecad_dev"
+channels = ["conda-forge"]
+platforms = ["linux-64", "linux-aarch64"]
+description = "Build OCCT, Coin3D, Netgen, SMESH, Pivy, and FreeCAD from third_party (see ANWEISUNG.md)"
+requires-pixi = ">=0.48"
+
+# Abhängigkeiten nach https://github.com/looooo/freecad-feedstock/blob/v102/recipe/recipe.yaml
+# (Zusammenführung von requirements.build / host / run, ohne Kreuzkompilierung).
+# OCCT / Coin / Pivy / SMESH: Conda (CMake-Preset BUILD_WITH_CONDA); später ggf. eigene Schritte ergänzen.
+
+[dependencies]
+# --- OpenCASCADE / Mesh / Coin / Pivy (Conda) --
+# occt = "*"
+# coin3d = "*"
+# pivy = "*"
+# smesh = "*"
+soqt6 = "*"
+
+# --- build (recipe build) ---
+cmake = "*"
+ninja = "*"
+swig = "*"
+compilers = "*"
+pybind11 = "*"
+qt6-main = "*"
+noqt5 = "*"
+python = ">=3.14,<3.15"
+pip = "*"
+# SMESH prepare.py (conda-forge: python-patch — gleiches Modul wie PyPI „patch“)
+python-patch = ">=1.16,<2"
+ccache = "*"
+mold = "*"
+git = "*"
+pkg-config = "*"
+
+# --- host (recipe host) ---
+eigen = "*"
+freetype = "*"
+hdf5 = "*"
+libboost-devel = "*"
+matplotlib-base = "*"
+pcl = "*"
+ply = "*"
+lark = "*"
+pyside6 = "*"
+six = "*"
+vtk = "*"
+xerces-c = "*"
+
+# --- run (recipe run) ---
+graphviz = "*"
+# gmsh = "*" # braucht occt
+numpy = "*"
+pyyaml = "*"
+sed = "*"
+doxygen = "*"
+
+[target.linux-64.dependencies]
+libspnav = "*"
+xorg-xproto = "*"
+libgl-devel = "*"
+libegl-devel = "*"
+xorg-libxi = "*"
+yaml-cpp = "*"
+zlib = "*"
+
+[target.linux-aarch64.dependencies]
+libspnav = "*"
+xorg-xproto = "*"
+libgl-devel = "*"
+libegl-devel = "*"
+xorg-libxi = "*"
+yaml-cpp = "*"
+zlib = "*"
+
+[feature.debug]
+activation = { env = { FC_MODE = "debug", CMAKE_BUILD_TYPE = "Debug" } }
+
+[feature.release]
+activation = { env = { FC_MODE = "release", CMAKE_BUILD_TYPE = "Release" } }
+
+[environments]
+debug = { features = ["debug"], solve-group = "build" }
+release = { features = ["release"], solve-group = "build" }
+
+[tasks]
+# Submodule: --depth 1 = shallow (nur die zum ausgewählten Commit nötige Historie, üblicherweise ein Commit pro geladenem Repo).
+# Es wird der in diesem Parent-Repo eingetragene Submodule-Commit geholt — nicht automatisch der neueste Upstream-Branch.
+# Rekursiv für verschachtelte Submodule (z. B. FreeCAD). Voraussetzung: Git-Clone mit .gitmodules.
+# Hinweis: Kein bash -c '…' mit einfachen Anführungszeichen — dort würde $PIXI_PROJECT_ROOT nicht expandieren.
+# Pixi startet Tasks im Projektroot. Ohne .git schlägt git submodule fehl — Prüfung mit verständlicher Meldung.
+git-init = "git init"
+submodules-init = "bash -ec \"if [ ! -d .git ]; then echo >&2 'pixi: Kein Git-Repository in diesem Ordner — bitte zuerst: pixi run git-init  (oder von einem geklonten Repo arbeiten).'; exit 1; fi; git submodule update --init --recursive --depth 1\""
+submodules-status = "bash -ec \"if [ ! -d .git ]; then echo >&2 'pixi: Kein Git-Repository — bitte zuerst: pixi run git-init'; exit 1; fi; git submodule status\""
+# Job-Anzahl für alle cmake --build --parallel Tasks: pixi run set-parallel 4  (ohne Zahl: nproc)
+set-parallel = "bash scripts/set-parallel.sh"
+prepare-smesh = "python scripts/prepare-smesh.py"
+
+[feature.debug.tasks]
+# OCCT aus third_party/occt → install/debug; 3rdparty aus Conda (CMAKE_PREFIX_PATH)
+configure-debug-occt = "cmake -S third_party/occt -B build/debug/occt -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$PIXI_PROJECT_ROOT/install/debug -DCMAKE_PREFIX_PATH=$CONDA_PREFIX"
+build-debug-occt = { depends-on = ["configure-debug-occt"], cmd = "bash scripts/cmake-build-parallel.sh build/debug/occt" }
+install-debug-occt = { depends-on = ["build-debug-occt"], cmd = "cmake --install build/debug/occt" }
+debug-occt = { depends-on = ["install-debug-occt"], cmd = "true" }
+# Coin3D: third_party/coin → install/debug; 3rdparty aus Conda (CMAKE_PREFIX_PATH)
+configure-debug-coin = "cmake -S third_party/coin -B build/debug/coin -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$PIXI_PROJECT_ROOT/install/debug -DCMAKE_PREFIX_PATH=$CONDA_PREFIX"
+build-debug-coin = { depends-on = ["configure-debug-coin"], cmd = "bash scripts/cmake-build-parallel.sh build/debug/coin" }
+install-debug-coin = { depends-on = ["build-debug-coin"], cmd = "cmake --install build/debug/coin" }
+debug-coin = { depends-on = ["install-debug-coin"], cmd = "true" }
+# Netgen: Install in aktive Pixi-Umgebung (CONDA_PREFIX), nicht unter install/debug — NETGENDIR/PYTHONPATH dann z. B. .pixi/envs/debug/…
+configure-debug-netgen = "cmake -S third_party/netgen -B build/debug/netgen -G Ninja -DCMAKE_BUILD_TYPE=Debug -DUSE_SUPERBUILD=OFF -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_PREFIX_PATH=$PIXI_PROJECT_ROOT/install/debug:$CONDA_PREFIX -DPython3_EXECUTABLE=$CONDA_PREFIX/bin/python -DPython3_ROOT_DIR=$CONDA_PREFIX -DPython3_FIND_STRATEGY=LOCATION"
+build-debug-netgen = { depends-on = ["configure-debug-netgen"], cmd = "bash scripts/cmake-build-parallel.sh build/debug/netgen" }
+install-debug-netgen = { depends-on = ["build-debug-netgen"], cmd = "cmake --install build/debug/netgen" }
+debug-netgen = { depends-on = ["install-debug-netgen"], cmd = "true" }
+# SMESH: third_party/smesh (rekursive Submodule), OpenCASCADE/VTK aus install/debug + Conda
+configure-debug-smesh = { depends-on = ["prepare-smesh"], cmd = "cmake -S third_party/smesh -B build/debug/smesh -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$PIXI_PROJECT_ROOT/install/debug -DCMAKE_PREFIX_PATH=$PIXI_PROJECT_ROOT/install/debug:$CONDA_PREFIX" }
+build-debug-smesh = { depends-on = ["configure-debug-smesh"], cmd = "bash scripts/cmake-build-parallel.sh build/debug/smesh" }
+install-debug-smesh = { depends-on = ["build-debug-smesh"], cmd = "cmake --install build/debug/smesh" }
+debug-smesh = { depends-on = ["install-debug-smesh"], cmd = "true" }
+# Pivy: Coin bevorzugt aus install/debug (CMAKE_PREFIX_PATH), sonst Conda; siehe scripts/configure-pivy.sh
+# Build immer --parallel 1 (RAM); set-parallel gilt für OCCT/FreeCAD, nicht für Pivy
+configure-debug-pivy = "bash scripts/configure-pivy.sh debug"
+build-debug-pivy = { depends-on = ["configure-debug-pivy"], cmd = "cmake --build build/debug/pivy --parallel 1" }
+install-debug-pivy = { depends-on = ["build-debug-pivy"], cmd = "cmake --install build/debug/pivy" }
+debug-pivy = { depends-on = ["install-debug-pivy"], cmd = "true" }
+# Preset conda-linux-debug, Build: third_party/freecad/build/debug — vorher: pixi run submodules-init
+configure-debug-freecad = "bash -ec \"cd third_party/freecad && cmake --preset conda-linux-debug -DPython3_ROOT_DIR=\\\"$CONDA_PREFIX\\\" -DPython3_FIND_STRATEGY=LOCATION\""
+build-debug-freecad = { depends-on = ["configure-debug-freecad"], cmd = "bash scripts/cmake-build-parallel.sh third_party/freecad/build/debug" }
+install-debug-freecad = { depends-on = ["build-debug-freecad"], cmd = "cmake --install third_party/freecad/build/debug" }
+debug-freecad = { depends-on = ["install-debug-freecad"], cmd = "true" }
+debug = "bash scripts/install-stack.sh debug"
+
+[feature.release.tasks]
+configure-release-occt = "cmake -S third_party/occt -B build/release/occt -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PIXI_PROJECT_ROOT/install/release -DCMAKE_PREFIX_PATH=$CONDA_PREFIX"
+build-release-occt = { depends-on = ["configure-release-occt"], cmd = "bash scripts/cmake-build-parallel.sh build/release/occt" }
+install-release-occt = { depends-on = ["build-release-occt"], cmd = "cmake --install build/release/occt" }
+release-occt = { depends-on = ["install-release-occt"], cmd = "true" }
+configure-release-coin = "cmake -S third_party/coin -B build/release/coin -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PIXI_PROJECT_ROOT/install/release -DCMAKE_PREFIX_PATH=$CONDA_PREFIX"
+build-release-coin = { depends-on = ["configure-release-coin"], cmd = "bash scripts/cmake-build-parallel.sh build/release/coin" }
+install-release-coin = { depends-on = ["build-release-coin"], cmd = "cmake --install build/release/coin" }
+release-coin = { depends-on = ["install-release-coin"], cmd = "true" }
+configure-release-netgen = "cmake -S third_party/netgen -B build/release/netgen -G Ninja -DCMAKE_BUILD_TYPE=Release -DUSE_SUPERBUILD=OFF -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_PREFIX_PATH=$PIXI_PROJECT_ROOT/install/release:$CONDA_PREFIX -DPython3_EXECUTABLE=$CONDA_PREFIX/bin/python -DPython3_ROOT_DIR=$CONDA_PREFIX -DPython3_FIND_STRATEGY=LOCATION"
+build-release-netgen = { depends-on = ["configure-release-netgen"], cmd = "bash scripts/cmake-build-parallel.sh build/release/netgen" }
+install-release-netgen = { depends-on = ["build-release-netgen"], cmd = "cmake --install build/release/netgen" }
+release-netgen = { depends-on = ["install-release-netgen"], cmd = "true" }
+configure-release-smesh = { depends-on = ["prepare-smesh"], cmd = "cmake -S third_party/smesh -B build/release/smesh -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PIXI_PROJECT_ROOT/install/release -DCMAKE_PREFIX_PATH=$PIXI_PROJECT_ROOT/install/release:$CONDA_PREFIX" }
+build-release-smesh = { depends-on = ["configure-release-smesh"], cmd = "bash scripts/cmake-build-parallel.sh build/release/smesh" }
+install-release-smesh = { depends-on = ["build-release-smesh"], cmd = "cmake --install build/release/smesh" }
+release-smesh = { depends-on = ["install-release-smesh"], cmd = "true" }
+configure-release-pivy = "bash scripts/configure-pivy.sh release"
+build-release-pivy = { depends-on = ["configure-release-pivy"], cmd = "cmake --build build/release/pivy --parallel 1" }
+install-release-pivy = { depends-on = ["build-release-pivy"], cmd = "cmake --install build/release/pivy" }
+release-pivy = { depends-on = ["install-release-pivy"], cmd = "true" }
+configure-release-freecad = "bash -ec \"cd third_party/freecad && cmake --preset conda-linux-release -DPython3_ROOT_DIR=\\\"$CONDA_PREFIX\\\" -DPython3_FIND_STRATEGY=LOCATION\""
+build-release-freecad = { depends-on = ["configure-release-freecad"], cmd = "bash scripts/cmake-build-parallel.sh third_party/freecad/build/release" }
+install-release-freecad = { depends-on = ["build-release-freecad"], cmd = "cmake --install third_party/freecad/build/release" }
+release-freecad = { depends-on = ["install-release-freecad"], cmd = "true" }
+release = "bash scripts/install-stack.sh release"

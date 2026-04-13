@@ -1,0 +1,7 @@
+# Upstream-Quellen (Git-Submodule) – groß; Kontext nur für Build-Infrastruktur dieses Repos
+third_party/
+sources/
+
+build/
+install/
+.pixi/

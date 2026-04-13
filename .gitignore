@@ -1,0 +1,4 @@
+/install/
+/build/
+/.pixi/
+.pixi-build-parallel
