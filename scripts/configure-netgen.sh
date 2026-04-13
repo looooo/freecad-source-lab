@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Netgen: find_package(OpenCascade …) needs installed OCCT (lib/cmake/opencascade-*). Hint: OpenCascade_DIR.
+# USE_GUI=OFF: no libnggui / X11-Tk stack (headless meshing only).
 set -euo pipefail
 mode="${1:?usage: configure-netgen.sh debug|release}"
 root="${PIXI_PROJECT_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
@@ -38,6 +39,7 @@ cmake \
   -G Ninja \
   "-DCMAKE_BUILD_TYPE=$build_type" \
   -DUSE_SUPERBUILD=OFF \
+  -DUSE_GUI=OFF \
   "-DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX" \
   "-DCMAKE_PREFIX_PATH=${stack_prefix}:${CONDA_PREFIX}" \
   "-DOpenCascade_DIR=$opencascade_dir" \

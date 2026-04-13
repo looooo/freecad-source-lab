@@ -36,7 +36,7 @@ noqt5 = "*"
 python = ">=3.14,<3.15"
 pip = "*"
 # SMESH prepare.py (conda-forge: python-patch — gleiches Modul wie PyPI „patch“)
-python-patch = ">=1.16,<2"
+python-patch = "*"
 ccache = "*"
 mold = "*"
 git = "*"
@@ -113,7 +113,7 @@ configure-debug-coin = "cmake -S third_party/coin -B build/debug/coin -G Ninja -
 build-debug-coin = { depends-on = ["configure-debug-coin"], cmd = "bash scripts/cmake-build-parallel.sh build/debug/coin" }
 install-debug-coin = { depends-on = ["build-debug-coin"], cmd = "cmake --install build/debug/coin" }
 debug-coin = { depends-on = ["install-debug-coin"], cmd = "true" }
-# Netgen: Install in aktive Pixi-Umgebung; OCCT aus install/debug — scripts/configure-netgen.sh (−DOpenCascade_DIR)
+# Netgen: Install in aktive Pixi-Umgebung; OCCT aus install/debug; kein GUI (USE_GUI=OFF in configure-netgen.sh)
 configure-debug-netgen = "bash scripts/configure-netgen.sh debug"
 build-debug-netgen = { depends-on = ["configure-debug-netgen"], cmd = "bash scripts/cmake-build-parallel.sh build/debug/netgen" }
 install-debug-netgen = { depends-on = ["build-debug-netgen"], cmd = "cmake --install build/debug/netgen" }

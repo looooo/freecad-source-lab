@@ -6,10 +6,10 @@ cd "$root"
 mode="${1:?usage: install-stack.sh debug|release}"
 if [ "$mode" = debug ]; then
   env_name=debug
-  tasks=(debug-coin debug-pivy debug-occt debug-smesh debug-freecad)
+  tasks=(debug-coin debug-pivy debug-occt debug-smesh debug-netgen debug-freecad)
 elif [ "$mode" = release ]; then
   env_name=release
-  tasks=(release-coin release-pivy release-occt release-smesh release-freecad)
+  tasks=(release-coin release-pivy release-occt release-smesh release-netgen release-freecad)
 else
   echo >&2 "install-stack.sh: need debug or release"
   exit 1
